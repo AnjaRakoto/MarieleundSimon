@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mariele & Simon's Journey</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdn.knightlab.com/libs/timeline3/latest/css/timeline.css">
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; }
+        #map { height: 500px; width: 100%; }
+        #timeline { margin-top: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .controls { margin-bottom: 20px; text-align: center; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        h1 { text-align: center; color: #333; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Mariele & Simon's Journey</h1>
+        <div class="controls">
+            <button onclick="showSimonRoute()">Simon's Route</button>
+            <button onclick="showMarieleRoute()">Mariele's Route</button>
+            <button onclick="showBothRoutes()">Both Routes</button>
+        </div>
+        <div id="map"></div>
+        <div id="timeline"></div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.knightlab.com/libs/timeline3/latest/js/timeline.js"></script>
+    <script>
+        // Initialize the map
+        const map = L.map('map').setView([49.2331, 6.9969], 4);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Define locations with coordinates
+        const locations = {
+            Krefeld: [51.3351, 6.5630],
+            Weilburg: [50.4859, 8.2625],
+            Saarbrücken: [49.2331, 6.9969],
+            Limoges: [45.8336, 1.2620],
+            Köln: [50.9375, 6.9603],
+            Pforzheim: [48.8912, 8.6989],
+            Madagaskar: [-18.8792, 47.5079],
+            Engelskirchen: [50.9889, 7.4000],
+            Oberstaufen: [47.5554, 10.0229],
+            Prag: [50.0755, 14.4378],
+            SainteMarie: [-16.9999, 49.8150],
+            LaRéunion: [-21.1151, 55.5364]
+        };
+
+        // Define routes
+        const simonRoute = [
+            locations.Krefeld,
+            locations.Weilburg,
+            locations.Saarbrücken,
+            locations.Köln,
+            locations.Pforzheim,
+            locations.Engelskirchen,
+            locations.Madagaskar,
+            locations.Oberstaufen,
+            locations.Prag,
+            locations.Madagaskar,
+            locations.SainteMarie,
+            locations.Madagaskar,
+            locations.LaRéunion
+        ];
+
+        const marieleRoute = [
+            locations.Iserlohn,
+            locations.Saarbrücken,
+            locations.Limoges,
+            locations.Saarbrücken,
+            locations.Madagaskar,
+            locations.Pforzheim,
+            locations.Saarbrücken,
+            locations.Engelskirchen,
+            locations.Madagaskar,
+            locations.Oberstaufen,
+            locations.Prag,
+            locations.Madagaskar,
+            locations.SainteMarie,
+            locations.Madagaskar,
+            locations.LaRéunion
+        ];
+
+        let simonLayer, marieleLayer;
+
+        // Function to draw Simon's route
+        function showSimonRoute() {
+            clearRoutes();
+            simonLayer = L.polyline(simonRoute, { color: 'blue', weight: 4 }).addTo(map);
+            addMarkers(simonRoute, 'Simon', 'blue');
+            map.fitBounds(simonLayer.getBounds());
+        }
+
+        // Function to draw Mariele's route
+        function showMarieleRoute() {
+            clearRoutes();
+            marieleLayer = L.polyline(marieleRoute, { color: 'red', weight: 4 }).addTo(map);
+            addMarkers(marieleRoute, 'Mariele', 'red');
+            map.fitBounds(marieleLayer.getBounds());
+        }
+
+        // Function to draw both routes
+        function showBothRoutes() {
+            clearRoutes();
+            simonLayer = L.polyline(simonRoute, { color: 'blue', weight: 4 }).addTo(map);
+            marieleLayer = L.polyline(marieleRoute, { color: 'red', weight: 4 }).addTo(map);
+            addMarkers(simonRoute, 'Simon', 'blue');
+            addMarkers(marieleRoute, 'Mariele', 'red');
+            map.fitBounds(L.latLngBounds([...simonRoute, ...marieleRoute]));
+        }
+
+        // Function to clear routes
+        function clearRoutes() {
+            if (simonLayer) map.removeLayer(simonLayer);
+            if (marieleLayer) map.removeLayer(marieleLayer);
+            map.eachLayer(layer => {
+                if (layer instanceof L.Marker) map.removeLayer(layer);
+            });
+        }
+
+        // Function to add markers
+        function addMarkers(route, name, color) {
+            route.forEach((coord, index) => {
+                const locationName = Object.keys(locations).find(key => locations[key] === coord);
+                L.circleMarker(coord, {
+                    color: color,
+                    radius: 8
+                }).addTo(map).bindPopup(`${name} in ${locationName} (${index + 1})`);
+            });
+        }
+
+        // Initialize with both routes
+        showBothRoutes();
+
+        // Timeline data
+        const timelineData = {
+            title: {
+                text: {
+                    headline: "Mariele & Simon's Timeline",
+                    text: "The journey of Mariele Eichholz and Simon Wenz, from their first meeting to their marriage."
+                }
+            },
+            events: [
+                {
+                    media: { url: "" },
+                    start_date: { year: 1990 },
+                    text: { headline: "Simon Born", text: "Simon Wenz is born in Krefeld, Germany." }
+                },
+                {
+                    media: { url: "" },
+                    start_date: { year: 1988 },
+                    text: { headline: "Mariele Born", text: "Mariele is born in Iserlohn, Germany." }
+                },
+                {
+                    media: { url: "" },
+                    start_date: { year: 2009 },
+                    text: { headline: "Mariele Moves to Saarbrücken", text: "Mariele starts studying Intercultural Studies in Saarbrücken." }
+                },
+                {
+                    media: { url: "" },
+                    start_date: { year: 2010, month: 10 },
+                    text: { headline: "Simon Moves to Saarbrücken", text: "Simon begins studying in Saarbrücken and hears about Mariele, who is in Limoges." }
+                },
+                {
+                    media: { url: "" },
+                    start_date: { year: 2011, month: 3 },
+                    text: { headline: "First Meeting", text: "Mariele and Simon meet face-to-face at FeG Saarbrücken during a Campus für Christus event." }
+                },
+                {
+                    media: { url: "" },
+                    start_date: { year: 2011, month: 4 },
+                    text: { headline: "Leading Campus Cross", text: "Mariele and Simon co-lead the Campus Cross group in Saarbrücken." }
+                },
+                {
+                    media: { url: "" },
+                    start_date: { year: 2017, month: 9 },
+                    text: { headline: "Mariele's Internship in Madagascar", text: "Mariele spends 7 months at the Goethe Zentrum in Madagascar." }
+                },
+                {
+                    media: { url: "" },
+                    start_date: { year: 2018 },
+                    text: { headline: "Simon Moves to Köln", text: "Simon starts his teacher training in Köln." }
+                },
+                {
+                    media: { url: "" },
+                    start_date: { year: 2019, month: 8 },
+                    text: { headline: "Mariele Returns to Madagascar", text: "Mariele travels to Madagascar for an extended period." }
+                },
+                {
+                    media: { url: "" },
+                    start_date: { year: 2020, month: 10 },
+                    text: { headline: "Reunion in Pforzheim", text: "Mariele visits Simon in Pforzheim after her
